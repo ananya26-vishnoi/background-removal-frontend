@@ -1,4 +1,4 @@
-# Image Uploader App
+# Background Remover App
 
 This is a simple React Native app that allows users to choose an image from their device's gallery and upload it to a backend server and return it to them after removing the background.
 
