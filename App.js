@@ -44,12 +44,12 @@ export default function App() {
       const { status } = await MediaLibrary.requestPermissionsAsync();
       if (status === 'granted') {
         await MediaLibrary.saveToLibraryAsync(newUri); // Save to Camera roll
-        console.log('Image downloaded and saved to Camera roll successfully:', newUri);
+        //console.log('Image downloaded and saved to Camera roll successfully:', newUri);
       } else {
-        console.warn('Media library permission not granted. Image saved within the app.');
+        //console.warn('Media library permission not granted. Image saved within the app.');
       }
     } catch (error) {
-      console.error('Error downloading image:', error);
+      //console.error('Error downloading image:', error);
     }
   };
 
@@ -75,7 +75,7 @@ export default function App() {
         // const response = await axios.post("http://127.0.0.1:8000/api/uploadAndRemoveBackground", data);
         // call google.com just for check
         let res = await fetch(
-          'http://192.168.1.3:8520/api/uploadAndRemoveBackground',
+          'http://192.168.1.5:8000/api/uploadAndRemoveBackground',
           {
             method: 'POST',
             body: imageData,
@@ -91,9 +91,9 @@ export default function App() {
               url = responseJson.url
               try {
                 await downloadImage(url);
-                console.log('Image downloaded successfully!'); // Add success handling if needed
+               // console.log('Image downloaded successfully!'); // Add success handling if needed
               } catch (error) {
-                console.error('Error downloading image:', error);
+               // console.error('Error downloading image:', error);
               }
 
             }
@@ -103,12 +103,12 @@ export default function App() {
           });
       }
       catch (error) {
-        console.log(error);
-        console.log("error")
+       // console.log(error);
+       // console.log("error")
       }
 
     } catch (error) {
-      console.error("Error uploading image:", error.message);
+      //console.error("Error uploading image:", error.message);
       setError("Error uploading image. Please try again.");
     }
   };
