@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import axios from "axios"; // Import the axios library
+import * as FileSystem from 'expo-file-system';
+import * as MediaLibrary from 'expo-media-library';
 
 export default function App() {
   const [file, setFile] = useState(null);
@@ -26,54 +27,86 @@ export default function App() {
     }
   };
 
+  const downloadImage = async (imageUrl) => {
+    try {
+      const { uri, name } = await FileSystem.downloadAsync(
+        imageUrl,
+        FileSystem.documentDirectory + name // Download to document directory
+      );
+
+      // Move the downloaded image to a publicly accessible location (e.g., Camera roll)
+      const newUri = await FileSystem.moveAsync({
+        from: uri,
+        to: `${FileSystem.documentDirectory}${name}`, // Move within the app's directory
+      });
+
+      // Request permission to save to Camera roll (optional)
+      const { status } = await MediaLibrary.requestPermissionsAsync();
+      if (status === 'granted') {
+        await MediaLibrary.saveToLibraryAsync(newUri); // Save to Camera roll
+        console.log('Image downloaded and saved to Camera roll successfully:', newUri);
+      } else {
+        console.warn('Media library permission not granted. Image saved within the app.');
+      }
+    } catch (error) {
+      console.error('Error downloading image:', error);
+    }
+  };
+
+
+  function getExtension(url) {
+    // Helper function to extract file extension (optional)
+    const parts = url.split('.');
+    return parts[parts.length - 1];
+  }
+
   const uploadImage = async (uri, file_type, file_name) => {
     try {
-      var imageData = {
-         image: uri,
-         type: file_type, //the mime type of the file
-         name: file_name
-       }
-       
-       const data = new FormData(); 
-       data.append("image",uri)
-       
-      try{
+
+      const imageData = new FormData();
+      imageData.append('image', {
+        uri: uri,
+        type: 'image/jpeg',
+        name: 'image.jpg',
+      });
+      imageData.append('file_type', file_type);
+
+      try {
         // const response = await axios.post("http://127.0.0.1:8000/api/uploadAndRemoveBackground", data);
         // call google.com just for check
         let res = await fetch(
-          'https://bgrem.jayantkhanna.in/api/uploadAndRemoveBackground',
+          'http://192.168.1.3:8520/api/uploadAndRemoveBackground',
           {
             method: 'POST',
-            body: data,
-            // headers: {
-            //   'Content-Type': 'multipart/form-data; ',
-            // },
+            body: imageData,
           }
-        ).then((response) => response)
-        .then((responseJson) => {
-          console.log(responseJson);
-        });
-        console.log(res)
-        let responseJson = await res.json();
-        if (responseJson.status == 1) {
-          console.log('Upload Successful');
-        } else {
-          console.log('Upload Failed');
-        }
+        ).then((response) => response.json())
+          .then(async (responseJson) => {
+            if (responseJson.success) {
+              // Assuming the backend sends the base64-encoded image content in the response
+              const resImageData = responseJson.image;
+              setFile(`data:image/jpg;base64,${resImageData}`);
+
+              // Download file here form this url
+              url = responseJson.url
+              try {
+                await downloadImage(url);
+                console.log('Image downloaded successfully!'); // Add success handling if needed
+              } catch (error) {
+                console.error('Error downloading image:', error);
+              }
+
+            }
+            else {
+              setError("Failed to process the image. Please try again.");
+            }
+          });
       }
-      catch(error){
+      catch (error) {
         console.log(error);
         console.log("error")
       }
-      
-      if (response.data.success) {
-        // Assuming the backend sends the base64-encoded image content in the response
-        const imageData = response.data.image;
-        // Handle the received image data as needed (e.g., display it)
-        setFile(`data:image/jpg;base64,${imageData}`);
-      } else {
-        setError("Failed to process the image. Please try again.");
-      }
+
     } catch (error) {
       console.error("Error uploading image:", error.message);
       setError("Error uploading image. Please try again.");

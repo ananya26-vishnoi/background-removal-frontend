@@ -9,13 +9,20 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@expo/config": "~8.1.1",
+    "@expo/metro-config": "~0.10.0",
     "axios": "^1.6.7",
-    "expo": "~50.0.11",
-    "expo-image-picker": "^14.7.1",
-    "expo-status-bar": "~1.11.1",
+    "expo": "^49.0.23",
+    "expo-cli": "^6.3.10",
+    "expo-file-system": "~15.4.5",
+    "expo-image-picker": "~14.3.2",
+    "expo-media-library": "~15.4.1",
+    "expo-status-bar": "~1.6.0",
     "react": "18.2.0",
-    "react-native": "0.73.4",
-    "react-native-image-picker": "^7.1.0"
+    "react-native": "0.72.10",
+    "react-native-fetch-blob": "^0.10.8",
+    "react-native-image-picker": "^7.1.0",
+    "rn-fetch-blob": "^0.12.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
